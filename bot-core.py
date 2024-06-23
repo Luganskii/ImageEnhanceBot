@@ -7,11 +7,11 @@ from telebot.types import BotCommand
 load_dotenv()
 bot = telebot.TeleBot(token=os.getenv('token'))
 
-commands = (
+commands = [
     BotCommand('start', 'start'),
     BotCommand('help', 'Show description of the commands and general info'),
     BotCommand('fix', 'Improve image quality')
-)
+]
 
 bot.set_my_commands(commands)
 
