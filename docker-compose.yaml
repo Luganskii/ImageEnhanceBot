@@ -1,8 +1,12 @@
 services:
   bot:
+    platform: linux/x86_64
     build:
       dockerfile: Dockerfile
+    depends_on:
+      - postgres
   postgres:
+    platform: linux/x86_64
     image: postgres:15.1-alpine
     ports:
       - "5432:5432"
