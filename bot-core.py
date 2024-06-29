@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from telebot.types import BotCommand
 
 load_dotenv()
-bot = telebot.TeleBot(token=os.getenv('token'))
+bot = telebot.TeleBot(token=os.getenv('TOKEN'))
 
 commands = [
     BotCommand('start', 'start'),
