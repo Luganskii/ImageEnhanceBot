@@ -13,3 +13,7 @@ def database_url() -> str:
     db_name: str = os.getenv('POSTGRES_USERNAME') or 'postgres'
 
     return f"postgresql+psycopg2://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
+
+
+SQLALCHEMY_DATABASE_URI: str = database_url()
+SQLALCHEMY_ECHO = True
