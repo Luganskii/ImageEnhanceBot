@@ -9,14 +9,14 @@
 | subscription_id    | Integer  | Foreign Key (subscription.id), Not Null |
 | language           | String   | Not Null, Default 'eng'            |
 | balance            | Double   | Not Null, Default 0.0              |
-| registration_date  | Datetime | Not Null, Default Current Date     |
+| registration_date  | Datetime | Not Null, Default Current DateTime     |
 
 ### PaymentsHistory
 | Column             | Type     | Constraints                        |
 |--------------------|----------|------------------------------------|
 | id                 | Integer  | Primary Key                        |
-| user_id            | Integer  | Foreign Key (user.id), Not Null    |
-| subscription_id    | Integer  | Foreign Key (subscription.id), Not Null |
+| user_id            | Integer  | Foreign Key (users.id), Not Null    |
+| subscription_id    | Integer  | Foreign Key (subscriptions.id), Not Null |
 | paid               | Double   | Not Null                           |
 
 ### Subscriptions
@@ -30,8 +30,8 @@
 | Column             | Type     | Constraints                        |
 |--------------------|----------|------------------------------------|
 | id                 | Integer  | Primary Key                        |
-| date_time          | Datetime | Not Null, Default Current Date     |
-| user_id            | Integer  | Foreign Key (user.id), Not Null    |
+| date_time          | Datetime | Not Null, Default Current DateTime     |
+| user_id            | Integer  | Foreign Key (users.id), Not Null    |
 | model              | String   | Foreign Key (models.id), Not Null |
 
 ### Models
