@@ -2,44 +2,44 @@
 
 ## Tables
 
-### User
+### Users
 | Column             | Type     | Constraints                        |
 |--------------------|----------|------------------------------------|
 | id                 | Integer  | Primary Key                        |
-| subscription       | Integer  | Foreign Key (subscription.id), Not Null |
-| language           | String(3)| Not Null, Default 'eng'            |
-| balance            | Float    | Not Null, Default 0.0              |
-| registration_date  | Date     | Not Null, Default Current Date     |
+| subscription_id    | Integer  | Foreign Key (subscription.id), Not Null |
+| language           | String   | Not Null, Default 'eng'            |
+| balance            | Double   | Not Null, Default 0.0              |
+| registration_date  | Datetime | Not Null, Default Current Date     |
 
-### SubscriptionHistory
+### PaymentsHistory
 | Column             | Type     | Constraints                        |
 |--------------------|----------|------------------------------------|
 | id                 | Integer  | Primary Key                        |
 | user_id            | Integer  | Foreign Key (user.id), Not Null    |
-| type_subscription  | Integer  | Foreign Key (subscription.id), Not Null |
-| paid               | Float    | Not Null                           |
+| subscription_id    | Integer  | Foreign Key (subscription.id), Not Null |
+| paid               | Double   | Not Null                           |
 
-### Subscription
+### Subscriptions
+| Column             | Type     | Constraints                        |
+|--------------------|----------|------------------------------------|
+| subscription_id    | Integer  | Primary Key                        |
+| description        | String   | Not Null                        |
+| price              | Double   | Not Null, Default 0.0              |
+
+### Activities
 | Column             | Type     | Constraints                        |
 |--------------------|----------|------------------------------------|
 | id                 | Integer  | Primary Key                        |
-| description        | String(100) | Not Null                        |
-| price              | Float    | Not Null, Default 0.0              |
-
-### Activity
-| Column             | Type     | Constraints                        |
-|--------------------|----------|------------------------------------|
-| id                 | Integer  | Primary Key                        |
-| day                | Date     | Not Null, Default Current Date     |
+| date_time          | Datetime | Not Null, Default Current Date     |
 | user_id            | Integer  | Foreign Key (user.id), Not Null    |
-| model              | String(10) | Foreign Key (models.id), Not Null |
+| model              | String   | Foreign Key (models.id), Not Null |
 
 ### Models
 | Column             | Type     | Constraints                        |
 |--------------------|----------|------------------------------------|
-| id                 | String(10) | Primary Key                      |
+| id                 | String   | Primary Key                      |
 | count_of_params    | Integer  | Not Null                           |
-| type               | String(10) | Not Null                         |
+| type               | String   | Not Null                         |
 
 ## Relationships
 
