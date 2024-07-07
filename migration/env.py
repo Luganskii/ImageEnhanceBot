@@ -1,11 +1,14 @@
+import os
 from logging.config import fileConfig
 
 from alembic import context
+from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
-from config import SQLALCHEMY_DATABASE_URI
 from models import base
 from models.tables import *  # noqa: F401, F403
+
+load_dotenv()
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -13,8 +16,10 @@ config = context.config
 
 # this will overwrite the ini-file sqlalchemy.url path
 # with the path given in the config of the main code
+local_db_url = f"postgresql+psycopg2://{os.getenv('POSTGRES_USERNAME')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/{os.getenv('POSTGRES_DATABASE')}"  # noqa: arg-type
 
-config.set_main_option('sqlalchemy.url', SQLALCHEMY_DATABASE_URI)
+
+config.set_main_option('sqlalchemy.url', local_db_url)
 
 
 # Interpret the config file for Python logging.
