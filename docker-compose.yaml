@@ -4,8 +4,9 @@ services:
     build:
       dockerfile: Dockerfile
     depends_on:
-      - postgres
-  postgres:
+      - postgres_bd
+    restart: always
+  postgres_bd:
     platform: linux/x86_64
     image: postgres:15.1-alpine
     ports:
