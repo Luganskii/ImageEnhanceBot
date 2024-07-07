@@ -1,1 +1,1 @@
-alembic upgrade HEAD && python3 main.py
+alembic upgrade head && python3 main.py
