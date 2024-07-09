@@ -1,10 +1,8 @@
 import subprocess
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 
-from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_ECHO
-
-engine = create_engine(SQLALCHEMY_DATABASE_URI, echo=SQLALCHEMY_ECHO)
+from database.config import engine
 
 with engine.connect() as conn:
     result = conn.execute(text("select 'hello world'"))
