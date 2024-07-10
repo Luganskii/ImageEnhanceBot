@@ -4,9 +4,9 @@ from alembic import context
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
-from config import SQLALCHEMY_DATABASE_URI
-from models import base
-from models.tables import *  # noqa: F401, F403
+from database.config import SQLALCHEMY_DATABASE_URI
+from database.models import base
+from database.models.tables import *  # noqa: F401, F403
 
 load_dotenv()
 
