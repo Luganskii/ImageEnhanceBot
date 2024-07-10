@@ -11,4 +11,4 @@ SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{os.getenv('POSTGRES_USERNAME'
 SQLALCHEMY_ECHO = True
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI, echo=SQLALCHEMY_ECHO)
-session_maker = sessionmaker(engine)  # noqa
+session_maker = sessionmaker(engine)
