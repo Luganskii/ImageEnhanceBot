@@ -97,7 +97,7 @@ class SubPixelConvolutionalBlock(nn.Module):
     A subpixel convolutional block, comprising convolutional, pixel-shuffle, and PReLU activation layers.
     """
 
-    def __init__(self, kernel_size=3, n_channels=64, scaling_factor=2, conv=nn.Conv2d):
+    def __init__(self, kernel_size=3, n_channels=64, scaling_factor=2):
         """
         :param kernel_size: kernel size of the convolution
         :param n_channels: number of input and output channels
@@ -106,8 +106,8 @@ class SubPixelConvolutionalBlock(nn.Module):
         super().__init__()
 
         # A convolutional layer that increases the number of channels by scaling factor^2, followed by pixel shuffle and PReLU
-        self.conv = conv(n_channels, n_channels * (scaling_factor ** 2),
-                         kernel_size=kernel_size, padding=kernel_size // 2)
+        self.conv = nn.Conv2d(n_channels, n_channels * (scaling_factor ** 2),
+                              kernel_size=kernel_size, padding=kernel_size // 2)
         # These additional channels are shuffled to form additional pixels, upscaling each dimension by the scaling factor
         self.pixel_shuffle = nn.PixelShuffle(upscale_factor=scaling_factor)
         self.prelu = nn.PReLU()
@@ -130,8 +130,7 @@ class SRResNet(nn.Module):
     The SRResNet, as defined in the paper.
     """
 
-    def __init__(self, large_kernel_size=9, small_kernel_size=3, n_channels=32, n_blocks=8, scaling_factor=2,
-                 conv=nn.Conv2d):
+    def __init__(self, large_kernel_size=9, small_kernel_size=3, n_channels=32, n_blocks=8, scaling_factor=2):
         """
         :param large_kernel_size: kernel size of the first and last convolutions which transform the inputs and outputs
         :param small_kernel_size: kernel size of all convolutions in-between, i.e. those in the residual and subpixel convolutional blocks
@@ -151,7 +150,7 @@ class SRResNet(nn.Module):
 
         # A sequence of n_blocks residual blocks, each containing a skip-connection across the block
         self.residual_blocks = nn.Sequential(
-            *[ResidualBlock(kernel_size=small_kernel_size, n_channels=n_channels,conv=conv) for i in range(n_blocks)])
+            *[ResidualBlock(kernel_size=small_kernel_size, n_channels=n_channels) for i in range(n_blocks)])
 
         # Another convolutional block
         self.conv_block2 = ConvolutionalBlock(in_channels=n_channels, out_channels=n_channels,
