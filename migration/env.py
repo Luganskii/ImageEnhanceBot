@@ -4,9 +4,9 @@ from alembic import context
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
+from database import base
 from database.config import SQLALCHEMY_DATABASE_URI
-from database.models import base
-from database.models.tables import *  # noqa: F401, F403
+from database.entities import *  # noqa: F401, F403
 
 load_dotenv()
 
@@ -16,10 +16,14 @@ config = context.config
 
 # this will overwrite the ini-file sqlalchemy.url path
 # with the path given in the config of the main code
-# local_db_url = f"postgresql+psycopg2://{os.getenv('POSTGRES_USERNAME')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/{os.getenv('POSTGRES_DATABASE')}"  # noqa: arg-type
 
 
 config.set_main_option('sqlalchemy.url', SQLALCHEMY_DATABASE_URI)
+
+# For migrations
+# import os
+# local_db_url = f"postgresql+psycopg2://{os.getenv('POSTGRES_USERNAME')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/{os.getenv('POSTGRES_DATABASE')}"  # noqa: arg-type
+# config.set_main_option('sqlalchemy.url', local_db_url)
 
 
 # Interpret the config file for Python logging.
