@@ -1,5 +1,3 @@
-import datetime
-
 from sqlalchemy import update as sql_update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session, sessionmaker
@@ -13,37 +11,37 @@ class UserRepository:
     def __init__(self, session_maker):
         self._session = session_maker
 
-    def create(self, dto: UserDto) -> int:
+    def create(self, dto: UserDto) -> UserDto:
         with self._session() as session:
             new_instance: User = User(id=dto.user_id,
                                       username=dto.username,
                                       main_name=dto.main_name,
                                       subscription_id=dto.subscription_id,
                                       language=dto.language,
-                                      balance=0,
-                                      registration_date=datetime.datetime.now(),
-                                      activities=[],
-                                      payments_history=[])
+                                      balance=dto.balance,
+                                      registration_date=dto.registration_date,
+                                      activities=dto.activities,
+                                      payments_history=dto.payments_history)
             session.add(new_instance)
             session.commit()
-            return new_instance.id
+            return new_instance.map_to_dto()
 
-    def get_by_id(self, user_id: int) -> User | None:
+    def get_by_id(self, user_id: int) -> UserDto | None:
         with self._session() as session:
             user = session.get(User, user_id)
-            return user
+            return user.map_to_dto() if user is not None else None
 
     def get_by_username(self, username: str) -> User | None:
         with self._session() as session:
             user = session.scalar(select(User).where(User.username == username))
-            return user
+            return user.map_to_dto()
 
     def get_all(self) -> list[User]:
         with self._session() as session:
             users = session.scalars(select(User))
-            return list(users)
+            return [user.map_to_dto() if user is not None else None for user in users]
 
-    def update(self, user_id: int, user_data: User) -> User:
+    def update(self, user_id: int, user_data: UserDto) -> User:
         with self._session() as session:
             user = session.get(User, user_id)
 
@@ -52,16 +50,16 @@ class UserRepository:
 
             # SQL-запрос для обновления
             query = sql_update(User).where(User.id == user_id).values(
+                main_name=user_data.main_name,
                 username=user_data.username,
-                activities=user_data.activities,
-                payments_history=user_data.payments_history,
                 balance=user_data.balance,
+                subscription_id=user_data.subscription_id
             ).execution_options(synchronize_session='fetch')
 
             session.execute(query)
             session.commit()
             session.refresh(user)
-            return user
+            return user.map_to_dto()
     #
     # async def delete(self, user_id: int) -> bool:
     #     async with self._session() as session:

@@ -9,7 +9,10 @@ class UserDto:
     main_name: str
     language: str
     subscription_id: int
+    balance: float
     registration_date: datetime
+    activities: list
+    payments_history: list
 
 
 @dataclass

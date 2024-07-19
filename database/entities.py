@@ -4,6 +4,7 @@ from sqlalchemy import DateTime, Double, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+from .dtos import UserDto
 
 
 class User(Base):
@@ -20,6 +21,12 @@ class User(Base):
     subscriptions: Mapped[list['Subscription']] = relationship(back_populates='users')
     payments_history: Mapped[list['PaymentHistory']] = relationship(back_populates='users')
     activities: Mapped[list['Activity']] = relationship(back_populates='users')
+
+    def map_to_dto(self):
+        return UserDto(user_id=self.id, subscription_id=self.subscription_id, username=self.username,
+                       main_name=self.main_name, language=self.language, balance=self.balance,
+                       registration_date=self.registration_date,
+                       payments_history=self.payments_history, activities=self.activities)
 
 
 class PaymentHistory(Base):
