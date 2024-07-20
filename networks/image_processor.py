@@ -63,7 +63,7 @@ class ImageProcessor:
 
         sr_picture = self.__tensor_to_image(output)
         now = datetime.now()
-        path_to_sr_picture = f'/app/media/{now.strftime('%d-%H-%M-%S.png')}.png'
+        path_to_sr_picture = f'/app/media/{now.strftime("%d-%H-%M-%S.png")}.png'
         sr_picture.save(path_to_sr_picture)
 
         return path_to_sr_picture
