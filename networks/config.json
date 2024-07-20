@@ -4,5 +4,5 @@
     "n_channels": 32,
     "n_blocks": 8,
     "scaling_factor": 2,
-    "weights_path": "/app/weights/srresnet_mini_x2"
+    "weights_path": "/app/srresnet_mini_x2.pth"
 }
