@@ -6,7 +6,7 @@ from sqlalchemy import engine_from_config, pool
 
 from database.base import Base
 from database.config import SQLALCHEMY_DATABASE_URI
-from database.models.tables import *  # noqa: F401, F403
+from database.entities import *  # noqa: F401, F403
 
 load_dotenv()
 
