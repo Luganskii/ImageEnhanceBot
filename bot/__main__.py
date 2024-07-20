@@ -1,29 +1,23 @@
+import asyncio
+import logging
 import os
 
-import telebot
+from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
-from telebot.types import BotCommand
+
+from bot.routers.command_router import command_router
+from bot.routers.simple_states_router import simple_states_router
 
 load_dotenv()
-bot = telebot.TeleBot(token=os.getenv('TOKEN'))
-
-commands = [
-    BotCommand('start', 'start'),
-    BotCommand('help', 'Show description of the commands and general info'),
-    BotCommand('fix', 'Improve image quality')
-]
-
-bot.set_my_commands(commands)
+logging.basicConfig(level=logging.INFO)
 
 
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    bot.reply_to(message, 'Hello world')
+async def main():
+    bot = Bot(token=os.getenv('TOKEN'))
+    dispatcher = Dispatcher()
+    dispatcher.include_routers(command_router, simple_states_router)
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dispatcher.start_polling(bot)
 
 
-@bot.message_handler(commands=['help'])
-def send_help(message):
-    bot.reply_to(message, 'Help')
-
-
-bot.infinity_polling()
+asyncio.run(main())
