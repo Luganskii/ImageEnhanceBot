@@ -1,4 +1,5 @@
 import json
+import torch
 from .srresnet import SRResNet
 
 
@@ -15,7 +16,7 @@ with open('config.json') as f:
                                 n_channels=n_channels, n_blocks=n_blocks,
                                 scaling_factor=scaling_factor)
 
-    # TODO загрузить веса
+    srresnet_mini_x2.load_state_dict(torch.load(data['weights_path'], map_location=torch.device('cpu')))
 
 
 __all__ = [srresnet_mini_x2]
