@@ -72,9 +72,9 @@ class SubscriptionRepository:
     def __init__(self, session_maker: sessionmaker[Session]):
         self._session = session_maker
 
-    def create(self, sub: NewSubscriptionDto) -> SubscriptionDto:
+    def create(self, subscription_dto: NewSubscriptionDto) -> SubscriptionDto:
         with self._session() as session:
-            new_instance = Subscription(description=sub.description, price=sub.price)
+            new_instance = Subscription(description=subscription_dto.description, price=subscription_dto.price)
             session.add(new_instance)
             session.commit()
             return SubscriptionDto(new_instance.id, new_instance.description, new_instance.price)
