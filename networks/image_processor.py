@@ -11,7 +11,6 @@ from networks.srresnet import SRResNet
 class ImageProcessor:
 
     def __init__(self, config_path: str):
-
         with open(config_path) as f:
             config_data = json.load(f)
             large_kernel_size = config_data['large_kernel_size']
@@ -33,10 +32,12 @@ class ImageProcessor:
         # tensor.shape is [batch = 1, channels = 3, height, width]
         # lr [0, 255] -> [-1, 1]
         return (torch.from_numpy(np.array(image)).permute(2, 0, 1).float() / (255 / 2) - 1).unsqueeze(0)
+        # return (torch.from_numpy(np.array(image)).permute(2, 0, 1).float()).unsqueeze(0)
 
     def __tensor_to_image(self, output):
         # sr [-1, 1] -> [0, 255]
         image_array = ((output.permute(1, 2, 0) + 1) * (255 / 2)).numpy().astype(np.uint8)
+        # image_array = (output.permute(1, 2, 0)).numpy().astype(np.uint8)
         self.image = Image.fromarray(image_array)
         return self.image
 
@@ -48,7 +49,7 @@ class ImageProcessor:
                 y_lim = min(j + y_step, width)
                 yield tensor[:, :, i:x_lim, j:y_lim], (i, j, x_lim, y_lim)
 
-    def update(self, path_to_picture, x_step:int = 512, y_step:int = 512):
+    def update(self, path_to_picture, x_step:int = 20000, y_step:int = 20000):
 
         image = Image.open(path_to_picture)
         tensor = self.__image_to_tensor(image)

@@ -5,6 +5,7 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile, Message
 
+from bot.config import srresnet_x2_image_processor
 from bot.phrases_interpreter import read_file, read_placeholder_file
 from bot.states import States
 from database.config import session_maker
@@ -53,7 +54,8 @@ async def enhance_image(message: Message, state: FSMContext) -> None:
     user = user_repository.get_by_id(message.from_user.id)
     if user is None:
         raise Exception('user not found')
-
+    date = f"{datetime.now().strftime('%d-%H-%M-%S')}"
+    await message.bot.download(file=message.photo[-1].file_id, destination=f"/app/media/lr_{date}_{message.photo[-1].file_id}.jpg")
     await message.answer_photo(caption=read_file('enhance_success.txt'),
-                               photo=FSInputFile('/app/bot/images/default.jpg'))
+                               photo=FSInputFile(srresnet_x2_image_processor.update(path_to_picture=f"/app/media/lr_{date}_{message.photo[-1].file_id}.jpg")))
     await state.clear()
