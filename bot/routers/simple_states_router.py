@@ -3,7 +3,7 @@ from datetime import datetime
 from aiogram import Router
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message
+from aiogram.types import FSInputFile, Message
 
 from bot.phrases_interpreter import read_file, read_placeholder_file
 from bot.states import States
@@ -45,4 +45,15 @@ async def change_name(message: Message, state: FSMContext) -> None:
     user_repository.update(message.from_user.id, user)
 
     await message.answer(await read_placeholder_file('rename_success.txt', message.from_user.id))
+    await state.clear()
+
+
+@simple_states_router.message(StateFilter(States.enhance_start))
+async def enhance_image(message: Message, state: FSMContext) -> None:
+    user = user_repository.get_by_id(message.from_user.id)
+    if user is None:
+        raise Exception('user not found')
+
+    await message.answer_photo(caption=read_file('enhance_success.txt'),
+                               photo=FSInputFile('/app/bot/images/default.jpg'))
     await state.clear()
