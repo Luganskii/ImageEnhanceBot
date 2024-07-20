@@ -6,6 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update
+RUN apt-get install wget
 
 COPY . /app
 RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
