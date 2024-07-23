@@ -6,6 +6,7 @@ services:
     depends_on:
       - postgres_bd
     restart: always
+
   postgres_bd:
     platform: linux/x86_64
     image: postgres:15.1-alpine
@@ -15,3 +16,40 @@ services:
       - POSTGRES_USER=${POSTGRES_USERNAME}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DATABASE}
+    restart: unless-stopped
+
+  redis:
+    platform: linux/x86_64
+    image: redis:7.0.5-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+#  celery-worker:
+#    build:
+#      context: .
+#      dockerfile: ./docker/backend/Dockerfile
+#    entrypoint: /app/docker/backend/worker-entrypoint.sh
+#    volumes:
+#      - static_volume:/app/backend/django_static
+#    environment:
+#      DEBUG: "True"
+#      CELERY_BROKER_URL: ${CELERY_RABBIT_HOST}
+#      CELERY_RESULT_BACKEND: ${CELERY_RABBIT_HOST}
+#      POSTGRES_HOST: postgres_bd
+#      POSTGRES_NAME: postgres
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres
+#      POSTGRES_PORT: 5432
+#    depends_on:
+#      - bot
+#      - rabbit
+#
+#  rabbit:
+#    container_name: rabbit
+#    image: rabbitmq:3.7.15-alpine
+#    environment:
+#      - RABBITMQ_DEFAULT_USER=ххх
+#      - RABBITMQ_DEFAULT_PASS=ххх
+#    networks:
+#      - backend_network

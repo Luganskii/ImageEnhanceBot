@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Double, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, DateTime, Double, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -21,6 +21,7 @@ class User(Base):
     subscriptions: Mapped[list['Subscription']] = relationship(back_populates='users')
     payments_history: Mapped[list['PaymentHistory']] = relationship(back_populates='users')
     activities: Mapped[list['Activity']] = relationship(back_populates='users')
+    files: Mapped[list['File']] = relationship(back_populates='users')
 
     def map_to_dto(self):
         return UserDto(user_id=self.id, subscription_id=self.subscription_id, username=self.username,
@@ -68,7 +69,23 @@ class Model(Base):
     __tablename__ = 'models'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    count_of_params: Mapped[int] = mapped_column(Integer, nullable=False)
+    params_amount: Mapped[int] = mapped_column(Integer, nullable=False)
     type: Mapped[str] = mapped_column(String, nullable=False)
 
     activities: Mapped[list['Activity']] = relationship(back_populates='models')
+
+
+class File(Base):
+    __tablename__ = 'files'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    type: Mapped[str] = mapped_column(String, nullable=False)
+    owner_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=False)
+    sent_date: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
+
+    # TODO: implement parameters
+    is_processed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    processing_model_id: Mapped[int] = mapped_column(Integer, ForeignKey('models.id'), nullable=True)
+    processed_time: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+
+    owner: Mapped['User'] = relationship(back_populates='files')
