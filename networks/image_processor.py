@@ -13,17 +13,18 @@ class ImageProcessor:
     def __init__(self, config_path: str):
         with open(config_path) as f:
             config_data = json.load(f)
-            large_kernel_size = config_data['large_kernel_size']
-            small_kernel_size = config_data['small_kernel_size']
-            n_channels = config_data['n_channels']
-            n_blocks = config_data['n_blocks']
             scaling_factor = config_data['scaling_factor']
+            in_channels = config_data['in_channels']
+            out_channels = config_data['out_channels']
+            channels = config_data['channels']
+            num_rcb = config_data['num_rcb']
             weights_path = config_data['weights_path']
 
-            self.model = SRResNet(large_kernel_size=large_kernel_size,
-                                  small_kernel_size=small_kernel_size,
-                                  n_channels=n_channels, n_blocks=n_blocks,
-                                  scaling_factor=scaling_factor)
+            self.model = SRResNet(upscale=scaling_factor,
+                                  in_channels=in_channels,
+                                  out_channels=out_channels,
+                                  channels=channels,
+                                  num_rcb=num_rcb)
 
             self.model.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu')))
             self.scaling_factor = scaling_factor
