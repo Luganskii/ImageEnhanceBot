@@ -33,10 +33,22 @@ async def send_rename(message: Message, state: FSMContext) -> None:
     await state.set_state(States.change_name_start)
 
 
-@command_router.message(Command('enhance'))
-async def send_enhance(message: Message, state: FSMContext) -> None:
+@command_router.message(Command('enhance_x2'))
+async def send_enhance_x2(message: Message, state: FSMContext) -> None:
     await message.answer(read_file('enhance.txt'))
-    await state.set_state(States.enhance_start)
+    await state.set_state(States.enhance_start_x2)
+
+
+@command_router.message(Command('enhance_x4'))
+async def send_enhance_x4(message: Message, state: FSMContext) -> None:
+    await message.answer(read_file('enhance.txt'))
+    await state.set_state(States.enhance_start_x4)
+
+
+@command_router.message(Command('enhance_x8'))
+async def send_enhance_x8(message: Message, state: FSMContext) -> None:
+    await message.answer(read_file('enhance.txt'))
+    await state.set_state(States.enhance_start_x8)
 
 
 @command_router.message(Command('recolor'))
