@@ -1,9 +1,9 @@
 import json
 from datetime import datetime
 
-import numpy as np
 import torch
 from PIL import Image
+from torchvision import transforms
 
 from networks.srresnet import SRResNet
 
@@ -13,33 +13,35 @@ class ImageProcessor:
     def __init__(self, config_path: str):
         with open(config_path) as f:
             config_data = json.load(f)
-            large_kernel_size = config_data['large_kernel_size']
-            small_kernel_size = config_data['small_kernel_size']
-            n_channels = config_data['n_channels']
-            n_blocks = config_data['n_blocks']
             scaling_factor = config_data['scaling_factor']
+            in_channels = config_data['in_channels']
+            out_channels = config_data['out_channels']
+            channels = config_data['channels']
+            num_rcb = config_data['num_rcb']
             weights_path = config_data['weights_path']
 
-            self.model = SRResNet(large_kernel_size=large_kernel_size,
-                                  small_kernel_size=small_kernel_size,
-                                  n_channels=n_channels, n_blocks=n_blocks,
-                                  scaling_factor=scaling_factor)
+            self.model = SRResNet(upscale=scaling_factor,
+                                  in_channels=in_channels,
+                                  out_channels=out_channels,
+                                  channels=channels,
+                                  num_rcb=num_rcb)
 
             self.model.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu')))
             self.scaling_factor = scaling_factor
 
+        self.transform_to_tensor = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Lambda(lambda x: x.unsqueeze(0))])
+
+        self.transform_to_picture = transforms.Compose([
+            transforms.Lambda(lambda x: x.squeeze(0)),
+            transforms.ToPILImage()])
+
     def __image_to_tensor(self, image) -> torch.tensor:
-        # tensor.shape is [batch = 1, channels = 3, height, width]
-        # lr [0, 255] -> [-1, 1]
-        return (torch.from_numpy(np.array(image)).permute(2, 0, 1).float() / (255 / 2) - 1).unsqueeze(0)
-        # return (torch.from_numpy(np.array(image)).permute(2, 0, 1).float()).unsqueeze(0)
+        return self.transform_to_tensor(image)
 
     def __tensor_to_image(self, output):
-        # sr [-1, 1] -> [0, 255]
-        image_array = ((output.permute(1, 2, 0) + 1) * (255 / 2)).numpy().astype(np.uint8)
-        # image_array = (output.permute(1, 2, 0)).numpy().astype(np.uint8)
-        self.image = Image.fromarray(image_array)
-        return self.image
+        return self.transform_to_picture(output)
 
     def __patch_iterator(self, x_step: int, y_step: int, tensor: torch.tensor):
         _, _, height, width = tensor.shape
@@ -49,7 +51,7 @@ class ImageProcessor:
                 y_lim = min(j + y_step, width)
                 yield tensor[:, :, i:x_lim, j:y_lim], (i, j, x_lim, y_lim)
 
-    def update(self, path_to_picture, x_step:int = 20000, y_step:int = 20000):
+    def update(self, path_to_picture, x_step:int = 512, y_step:int = 512):
 
         image = Image.open(path_to_picture)
         tensor = self.__image_to_tensor(image)

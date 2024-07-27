@@ -1,0 +1,9 @@
+{
+    "name": "srresnet_x4",
+    "scaling_factor": 4,
+    "in_channels": 3,
+    "out_channels": 3,
+    "channels": 64,
+    "num_rcb": 16,
+    "weights_path": "/app/SRGAN_x4.pth"
+}
