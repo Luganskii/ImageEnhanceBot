@@ -3,3 +3,5 @@ Everyone wants to improve the quality of some of their childhood photos. This bo
 
 
 [![Build Status](https://github.com/Luganskii/ImageEnhanceBot/actions/workflows/flake8.yml/badge.svg)](https://github.com/Luganskii/ImageEnhanceBot/actions/workflows/flake8.yml)
+
+[![Docker Image CI](https://github.com/Luganskii/ImageEnhanceBot/actions/workflows/docker-image.yml/badge.svg)](https://github.com/Luganskii/ImageEnhanceBot/actions/workflows/docker-image.yml)
