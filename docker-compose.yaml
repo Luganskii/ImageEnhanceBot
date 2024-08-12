@@ -4,10 +4,23 @@ services:
     build:
       dockerfile: Dockerfile
     depends_on:
-      - postgres_bd
+      - postgres_db
+      - kafka
+      - redis
     restart: always
 
-  postgres_bd:
+  image_enhance:
+    platform: linux/x86_64
+    build:
+      dockerfile: Dockerfile-service
+    environment:
+      - APP_PATH=image_enhance_service
+    depends_on:
+      - bot
+    restart: always
+
+
+  postgres_db:
     platform: linux/x86_64
     image: postgres:15.1-alpine
     ports:
@@ -16,40 +29,127 @@ services:
       - POSTGRES_USER=${POSTGRES_USERNAME}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DATABASE}
-    restart: unless-stopped
+    restart: always
 
   redis:
     platform: linux/x86_64
     image: redis:7.0.5-alpine
     ports:
-      - "6379:6379"
-    restart: unless-stopped
+      - "${REDIS_PORT}:6379"
+    restart: always
 
-#  celery-worker:
-#    build:
-#      context: .
-#      dockerfile: ./docker/backend/Dockerfile
-#    entrypoint: /app/docker/backend/worker-entrypoint.sh
-#    volumes:
-#      - static_volume:/app/backend/django_static
-#    environment:
-#      DEBUG: "True"
-#      CELERY_BROKER_URL: ${CELERY_RABBIT_HOST}
-#      CELERY_RESULT_BACKEND: ${CELERY_RABBIT_HOST}
-#      POSTGRES_HOST: postgres_bd
-#      POSTGRES_NAME: postgres
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: postgres
-#      POSTGRES_PORT: 5432
-#    depends_on:
-#      - bot
-#      - rabbit
-#
-#  rabbit:
-#    container_name: rabbit
-#    image: rabbitmq:3.7.15-alpine
-#    environment:
-#      - RABBITMQ_DEFAULT_USER=ххх
-#      - RABBITMQ_DEFAULT_PASS=ххх
-#    networks:
-#      - backend_network
+  kafka:
+    image: 'bitnami/kafka:3.8'
+    environment:
+      # KRaft settings
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_KRAFT_CLUSTER_ID=abcdefghijklmnopqrstuv
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_SUPER_USERS=User:sa
+      # Listeners
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:29092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka:9092,EXTERNAL://kafka:29092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_OPTS=-javaagent:/opt/jmx-exporter/jmx_prometheus_javaagent-0.19.0.jar=9404:/opt/jmx-exporter/kafka-3_0_0.yml
+    ports:
+      - "29092:29092"
+      - "29095:9404"
+    volumes:
+      - kafka_data:/bitnami/kafka
+      - ./jmx-exporter:/opt/jmx-exporter
+    restart: always
+    healthcheck:
+      test: "bash -c 'printf \"\" > /dev/tcp/127.0.0.1/9092; exit $$?;'"
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 8089:8080
+    restart: always
+    environment:
+      # CLUSTER SETTINGS
+      - KAFKA_CLUSTERS_0_NAME=abcdefghijklmnopqrstuv
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:29092
+      - DYNAMIC_CONFIG_ENABLED=true
+      # AUTH
+      - AUTH_TYPE=LOGIN_FORM
+      - SPRING_SECURITY_USER_NAME=admin
+      - SPRING_SECURITY_USER_PASSWORD=admin
+    depends_on:
+      - kafka
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider localhost:8089 || exit 1
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  kafka-exporter:
+    image: bitnami/kafka-exporter:latest
+    ports:
+      - 9308:9308
+    command: --kafka.server=kafka:29092 --log.level=debug
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: "bash -c 'printf \"\" > /dev/tcp/127.0.0.1/9308; exit $$?;'"
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prom_data:/prometheus
+    depends_on:
+      - kafka-exporter
+    restart: always
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider localhost:9090 || exit 1
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+    restart: always
+    healthcheck:
+      test: curl --fail localhost:3000
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  zookeeper_data:
+  kafka_data:
+  prom_data:

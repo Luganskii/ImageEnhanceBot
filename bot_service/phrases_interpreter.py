@@ -7,7 +7,7 @@ user_repository = UserRepository(database.config.session_maker)
 
 
 def read_file(file_name: str) -> str:
-    with open('/app/bot/phrases/' + file_name) as f:
+    with open('/app/bot_service/phrases/' + file_name) as f:
         return f.read()
 
 
@@ -26,5 +26,4 @@ async def get_replace_dict(user_id: int) -> dict:
         raise Exception('User was not found')
     result['<USER>'] = user.main_name
     result['<CURRENT_DATE>'] = datetime.now().strftime('%d/%m/%Y')
-    # result["<SUBSCRIPTION_EXPIRY_DATE>"] =
     return result

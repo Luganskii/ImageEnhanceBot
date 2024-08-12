@@ -3,8 +3,8 @@ from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from bot.phrases_interpreter import read_file, read_placeholder_file
-from bot.states import States
+from bot_service.phrases_interpreter import read_file, read_placeholder_file
+from bot_service.states import States
 from database.config import session_maker
 from database.repositories import UserRepository
 

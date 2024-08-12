@@ -88,4 +88,4 @@ class File(Base):
     processing_model_id: Mapped[int] = mapped_column(Integer, ForeignKey('models.id'), nullable=True)
     processed_time: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
-    owner: Mapped['User'] = relationship(back_populates='files')
+    users: Mapped[list['User']] = relationship(back_populates='files')
