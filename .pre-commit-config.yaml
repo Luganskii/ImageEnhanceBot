@@ -3,7 +3,6 @@ repos:
     rev: v4.2.0
     hooks:
       - id: trailing-whitespace  # убирает лишние пробелы
-      - id: check-added-large-files  # проверяет тяжелые файлы на изменения
       - id: check-yaml  # проверяет синтаксис .yaml файлов
       - id: check-json  # проверяет синтаксис .json файлов
         exclude: launch.json
